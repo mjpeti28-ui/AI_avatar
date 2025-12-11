@@ -2,5 +2,3 @@ venv/
 __pycache__/
 *.pyc
 .DS_Store
-
-export OPENAI_API_KEY='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'
