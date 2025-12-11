@@ -1,3 +1,4 @@
+import unicodedata
 from dearpygui import dearpygui as dpg
 from final_model import get_response, save_convo
 
@@ -13,6 +14,15 @@ BORDER = (48, 56, 74, 255)
 USER_BUBBLE = (46, 59, 92, 255)
 ASSIST_BUBBLE = (32, 40, 58, 255)
 BUBBLE_BORDER = (60, 70, 90, 255)
+
+
+def normalize_text(text: str) -> str:
+    """Normalize and strip odd glyphs to reduce rendering artifacts."""
+    if not text:
+        return ""
+    # Decompose accents and strip to ASCII
+    text = unicodedata.normalize("NFKD", text)
+    return text.encode("ascii", "ignore").decode("ascii")
 
 
 def add_message(prefix: str, content: str, color):
@@ -45,12 +55,12 @@ def send_message(sender, app_data, user_data):
     user_message = dpg.get_value("input_text")
     if not user_message.strip():
         return
-    user_message = user_message.replace("’", "'").replace("‘", "'")
+    user_message = normalize_text(user_message.replace("’", "'").replace("‘", "'"))
     add_message("You", user_message, ACCENT_SOFT)
     dpg.set_value("input_text", "")
 
     response = get_response(user_message)
-    response = response.replace("’", "'").replace("‘", "'")
+    response = normalize_text(response.replace("’", "'").replace("‘", "'"))
     add_message("Max", response, SUBTEXT)
 
 

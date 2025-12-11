@@ -16,8 +16,8 @@ system_prompt = (
 )
 
 # Fine-tune config: prefer explicit model id via env, fallback to job id lookup.
-fine_tuned_model_env = os.getenv("FINE_TUNED_MODEL_ID", "ft:gpt-4.1-2025-04-14:personal::ClPr1iRF")
-fine_tune_job_id = os.getenv("FINE_TUNE_JOB_ID", "ftjob-o68ZUveJJ9zO9tfUgFZo00Lv")
+fine_tuned_model_env = os.getenv("FINE_TUNED_MODEL_ID", "ft:gpt-4.1-2025-04-14:personal:v2-updated:ClSRb22p")
+fine_tune_job_id = os.getenv("FINE_TUNE_JOB_ID", "ftjob-KHUOl9u58Nt1rKpqcQPnxdYZ")
 
 client = OpenAI()
 _fine_tuned_model_name = None

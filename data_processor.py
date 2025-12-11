@@ -619,4 +619,4 @@ def get_convo():
     return synthetic_conversation + synthetic_conversation2 + synthetic_conversation3
 
 
-build_training_jsonl()
+#build_training_jsonl()
