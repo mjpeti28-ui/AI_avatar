@@ -1,9 +1,10 @@
-import os 
-import openai 
-from openai import OpenAI
-from embedding_handler import get_relevant_context
-from data_processor import get_convo
+import os
 from datetime import datetime
+
+import openai
+from openai import OpenAI
+
+from embedding_handler import get_relevant_context
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 openai.proxy = None
@@ -13,19 +14,48 @@ system_prompt = (
     "Respond to the user from your perspective using your understanding of the world"
 )
 
-synthetic_conversation_final = get_convo()
+# Fine-tune config: prefer explicit model id via env, fallback to job id lookup.
+fine_tuned_model_env = os.getenv("FINE_TUNED_MODEL_ID", "ft:gpt-4.1-2025-04-14:personal::ClPr1iRF")
+fine_tune_job_id = os.getenv("FINE_TUNE_JOB_ID", "ftjob-o68ZUveJJ9zO9tfUgFZo00Lv")
 
-# Initialize conversation messages with system prompt and synthetic conversation
-messages = [
-    {"role": "system", "content": system_prompt},
-    *synthetic_conversation_final,
-]
-
-# Get fine-tuned model name from the fine-tuning job
-fine_tune_job_id = "ftjob-bD0stuZBrl9FEOSIoJSiTevy" #'ftjob-0FUCOlMYyut3QkL8ADYaSKK5'version2 w/o interview #'ftjob-t7PTo6MxpFsvcAuYjCUCwUqX' version 1
 client = OpenAI()
-fine_tune_job = client.fine_tuning.jobs.retrieve(fine_tune_job_id)
-fine_tuned_model_name = fine_tune_job.fine_tuned_model
+_fine_tuned_model_name = None
+
+
+def load_fine_tuned_model_name():
+    """
+    Lazily fetch and cache the fine-tuned model name.
+    Raises a clear RuntimeError if the model cannot be resolved.
+    """
+    global _fine_tuned_model_name
+
+    if _fine_tuned_model_name:
+        return _fine_tuned_model_name
+
+    # If an explicit fine-tuned model id is provided, trust it.
+    if fine_tuned_model_env:
+        _fine_tuned_model_name = fine_tuned_model_env
+        return _fine_tuned_model_name
+
+    if not openai.api_key:
+        raise RuntimeError("OPENAI_API_KEY is not set; cannot load fine-tuned model.")
+
+    if not fine_tune_job_id:
+        raise RuntimeError("FINE_TUNE_JOB_ID is not set; cannot resolve fine-tuned model.")
+
+    try:
+        fine_tune_job = client.fine_tuning.jobs.retrieve(fine_tune_job_id)
+        model_name = getattr(fine_tune_job, "fine_tuned_model", None)
+        if not model_name:
+            raise RuntimeError(
+                f"Fine-tune job '{fine_tune_job_id}' did not return a fine-tuned model name."
+            )
+        _fine_tuned_model_name = model_name
+        return _fine_tuned_model_name
+    except Exception as exc:  # noqa: BLE001
+        raise RuntimeError(
+            f"Unable to load fine-tuned model from job '{fine_tune_job_id}': {exc}"
+        ) from exc
 
 # Function to get a response from the fine-tuned model
 """
@@ -139,9 +169,11 @@ def get_response(user_input):
     print("Model requested...")
 
     try:
+        model_name = load_fine_tuned_model_name()
+
         # Query the fine-tuned model with updated messages
         response = client.chat.completions.create(
-            model=fine_tuned_model_name,
+            model=model_name,
             messages=messages
         )
 

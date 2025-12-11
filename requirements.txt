@@ -11,3 +11,4 @@ openai==1.57.2
 tiktoken==0.8.0
 transformers==4.31.0
 uvicorn==0.32.0
+dearpygui==1.11.1

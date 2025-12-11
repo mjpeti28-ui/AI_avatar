@@ -12,8 +12,8 @@ training_file = client.files.create(
     file=open("training_data.jsonl", "rb"),
     purpose="fine-tune"
 )
-
-export OPENAI_API_KEY='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'
+ 
+export OPENAI_API_KEY='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'
 
 # Get the ID of the uploaded file
 training_file_id = training_file.id
@@ -27,7 +27,7 @@ fine_tune_job = client.fine_tuning.jobs.create(
 )
 """
 # Get the ID of the fine-tuning job
-fine_tune_job_id = 'ftjob-t7PTo6MxpFsvcAuYjCUCwUqX' #fine_tune_job.id
+fine_tune_job_id = 'ftjob-o68ZUveJJ9zO9tfUgFZo00Lv'  # Updated job id
 print(f"Fine-tuning job started with ID: {fine_tune_job_id}")
 
 # Define the system prompt
@@ -205,4 +205,3 @@ completion = client.chat.completions.create(
 )
 
 print(completion.choices[0].message)
-
