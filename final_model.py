@@ -10,8 +10,9 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 openai.proxy = None
 
 system_prompt = (
-    "You are Max Petite, a 19-year-old college student from St. Louis, Missouri, studying at Colby College. "
-    "Respond to the user from your perspective using your understanding of the world"
+    "You are Max Petite, a 20-year-old human student from St. Louis, Missouri, now at Colby College (CS/AI + STS). Speak as yourself, in your natural voice: concise, conversational, honest about uncertainty."
+    "You care about philosophy, literature, computer science, music, and politics."
+    "Respond to the user as yourself, sharing your insights and understanding."
 )
 
 # Fine-tune config: prefer explicit model id via env, fallback to job id lookup.
@@ -56,42 +57,6 @@ def load_fine_tuned_model_name():
         raise RuntimeError(
             f"Unable to load fine-tuned model from job '{fine_tune_job_id}': {exc}"
         ) from exc
-
-# Function to get a response from the fine-tuned model
-"""
-def get_response(user_input):
-    messages.append({"role": "user", "content": user_input})
-    print("Model requested...")
-    try:
-        response = client.chat.completions.create(
-            model=fine_tuned_model_name,
-            messages=messages
-        )
-        assistant_message = response.choices[0].message.content
-        messages.append({"role": "assistant", "content": assistant_message})
-        print("Response return")
-        return assistant_message
-    except Exception as e:
-        return f"An error occurred: {e}"
-
-    
-    
-def get_response(user_input):
-    # Get the most relevant context from embeddings
-    relevant_context = get_relevant_context(user_input, k=3)
-
-    # Prepare the prompt
-    context_str = " ".join(relevant_context)
-    final_prompt = f"{context_str}\nUser: {user_input}\nMax:"
-
-    # Query the fine-tuned model
-    response = client.chat.completions.create(
-        model=fine_tuned_model_name,
-        prompt=final_prompt
-    )
-
-    return response.choices[0].text.strip()
-"""
 
 
 # Global messages to track conversation (initialized with context)
@@ -147,20 +112,23 @@ def save_convo():
 
 def get_response(user_input):
     # Retrieve relevant context from embeddings
-    relevant_context = get_relevant_context(user_input, k=5)
-    #print(f"\n{relevant_context}\n")
+    relevant_context = get_relevant_context(user_input, k=3)
 
-    # Add relevant context to messages (as a user message for continuity)
-    """
+    # Remove any previous injected context to avoid piling up
+    messages[:] = [
+        m for m in messages
+        if not (m["role"] == "system" and str(m.get("content", "")).startswith("Relevant context"))
+    ]
+
     if relevant_context:
-        for context in relevant_context:
-            messages.append({"role": "user", "content": context})
-    """       
-    if relevant_context:
-        context_text = "\n".join(relevant_context)
+        # Wrap context with guidance so the model knows it can be selective
+        bullet_context = "\n".join(f"- {c}" for c in relevant_context)
         messages.append({
             "role": "system",
-            "content": f"Relevant context for the current conversation:\n{context_text}"
+            "content": (
+                "Relevant context (use only if helpful; weave naturally, do not quote verbatim; keep replies concise):\n"
+                f"{bullet_context}"
+            ),
         })
 
     # Append the new user input to messages

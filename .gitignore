@@ -3,4 +3,4 @@ __pycache__/
 *.pyc
 .DS_Store
 
-export OPENAI_API_KEY='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'
+export OPENAI_API_KEY='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'

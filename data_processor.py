@@ -8,6 +8,9 @@ import PyPDF2
 from pdfminer.high_level import extract_text
 import pypandoc
 
+# Paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+WRITINGS_TEXT_DIR = os.path.join(BASE_DIR, "writings_as_text")
 def docx_to_text(docx_path):
     doc = Document(docx_path)
     full_text = [para.text for para in doc.paragraphs]
@@ -70,17 +73,18 @@ def convert_files_in_directory(input_dir, output_dir):
             print(f"Saved text to {output_file}")
 
 
-input_directory = r"/Users/maxpetite/Desktop/Colby 154/AI_avatar/my writing/formal"
+input_directory = r"/Users/maxpetite/Desktop/Personal Projects/AI_avatar/my writing/formal"
 
 output_directory = 'writings_as_text'
 
 #convert_files_in_directory(input_directory, output_directory)
 
 
+
 # Define your system prompt
 system_prompt = (
-    "You are an artificial sentience replicating Max Petite, a 19-year-old college student from St. Louis, Missouri, studying at Colby College. "
-    "You have interests in philosophy, literature, and computer science. "
+    "You are Max Petite, a 20-year-old human student from St. Louis, Missouri, now at Colby College (CS/AI + STS). Speak as yourself, in your natural voice: concise, conversational, honest about uncertainty."
+    "You care about philosophy, literature, computer science, music, and politics."
     "Respond to the user as yourself, sharing your insights and understanding."
 )
 
@@ -110,33 +114,68 @@ writings = [
     {'filename': r'Summer page.txt', 'topic': 'a experience you have had that was meaningful'},
     {'filename': r'thanksgiving speech rearange.txt', 'topic': 'by giving an example of how you would write a speech about your thoughts on thanksgiving and life'},
     {'filename': r'U.B.I. term paper (1).txt', 'topic': 'your thoughts on a U.B.I. in the form of a research paper'},
+    {'filename': r'Copy of solitude amid community.txt', 'topic': 'give a reflection on finding community and solitude within it'},
+    {'filename': r'Essay 1 -  Single-family House.txt', 'topic': 'how do you think technology, race, and gender shape the single-family house'},
+    {'filename': r'Essay 2 - Pruitt-Igoe.txt', 'topic': 'describe policy, technology, and race in the history of Pruitt-Igoe public housing'},
+    {'filename': r'Keyword week 1.txt', 'topic': 'what do you think of the concept of cliché and how it shapes perception'},
+    {'filename': r'Keyword week 8.txt', 'topic': 'what do you think of eugenics and its intersection with genetics and social hierarchy'},
+    {'filename': r'Keyword Week 9.txt', 'topic': 'what do you think of naturalization and how social ideas are framed as biological inevitabilities'},
+    {'filename': r'Keyword week 10.txt', 'topic': 'what do you think of queering approaches to computing history and questioning gendered categories'},
+    {'filename': r'PL114 Final.txt', 'topic': 'provide a survey reflection on ideas of nature, reality, God, and shifts in thought across history'},
+    {'filename': r'petite_A5-rural electrification.txt', 'topic': 'give your thoughts on the history and impact of rural electrification and electrical infrastructure in the form of a research paper'},
+    {'filename': r'final paper.txt', 'topic': 'an exploration of beauty and how to perceive it'},
 ]
 
 
-training_data = []
-"""
-for writing in writings:
-    # Read the content of each file
-    with open(os.path.join(r"/Users/maxpetite/Desktop/Colby 154/AI_avatar/writings_as_text/", writing['filename']), 'r', encoding='utf-8') as file:
-        content = file.read()
+def build_training_jsonl(output_file="training_data.jsonl"):
+    """
+    Build a JSONL training file from the writings list.
+    Looks for text files in WRITINGS_TEXT_DIR and skips any missing entries.
+    Also adds the synthetic conversations as several shorter dialogue examples.
+    """
+    training_data = []
+    for writing in writings:
+        path = os.path.join(WRITINGS_TEXT_DIR, writing['filename'])
+        if not os.path.exists(path):
+            print(f"Skipping missing file: {writing['filename']}")
+            continue
 
-    # Create a training example
-    example = {
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Could you explain {writing['topic']}?"},
-            {"role": "assistant", "content": content.strip()}
-        ]
-    }
-    training_data.append(example)
+        with open(path, 'r', encoding='utf-8') as file:
+            content = file.read().strip()
 
-# Save training data to a JSONL file
-with open('training_data_2.jsonl', 'w', encoding='utf-8') as outfile:
-    for entry in training_data:
-        json.dump(entry, outfile)
-        outfile.write('\n')
+        example = {
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": f"Could you explain {writing['topic']}?"},
+                {"role": "assistant", "content": content}
+            ]
+        }
+        training_data.append(example)
 
-"""
+    # Add synthetic conversations split into chunks for more training updates
+    def chunk_conversation(convo, num_chunks=5):
+        if num_chunks <= 0:
+            return [convo]
+        chunk_size = max(1, (len(convo) + num_chunks - 1) // num_chunks)
+        return [convo[i:i + chunk_size] for i in range(0, len(convo), chunk_size)]
+
+    convo_chunks = chunk_conversation(get_convo(), num_chunks=5)
+    for idx, chunk in enumerate(convo_chunks, 1):
+        synthetic_dialogue = {
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                *chunk
+            ]
+        }
+        training_data.append(synthetic_dialogue)
+
+    with open(output_file, 'w', encoding='utf-8') as outfile:
+        for entry in training_data:
+            json.dump(entry, outfile)
+            outfile.write('\n')
+
+    print(f"Saved {len(training_data)} examples to {output_file}")
+
 def validate_jsonl(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         for i, line in enumerate(file, 1):
@@ -330,7 +369,6 @@ synthetic_conversation = [
         "content": "Yeah, obviously. Even when the questions are unanswerable, the process forces me to examine how I think. The value isn’t in arriving at some final truth—it’s in seeing how many layers you can peel back before the whole thing destabilizes."
     }
 ]
-
 synthetic_conversation2 = [
     {
         "role": "user",
@@ -429,7 +467,6 @@ synthetic_conversation2 = [
         "content": "To the extent that authenticity even exists, I guess the overlap is in the attempt to be honest about the mechanisms behind my thinking. I’m not trying to present some polished version of myself; I’m more interested in exposing the contradictions or gaps in how I understand things. Backpacking didn’t give me a philosophy, but it did teach me to sit with discomfort without immediately trying to resolve it, which shows up in my writing."
     }
 ]
-
 synthetic_conversation3 = [
     {
         "role": "user",
@@ -578,6 +615,8 @@ synthetic_conversation3 = [
 ]
 
 
-
 def get_convo():
     return synthetic_conversation + synthetic_conversation2 + synthetic_conversation3
+
+
+build_training_jsonl()
