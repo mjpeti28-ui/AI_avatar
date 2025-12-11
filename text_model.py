@@ -13,7 +13,7 @@ training_file = client.files.create(
     purpose="fine-tune"
 )
  
-export OPENAI_API_KEY='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'
+export OPENAI_API_KEY='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'
 
 # Get the ID of the uploaded file
 training_file_id = training_file.id
