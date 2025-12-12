@@ -1,0 +1,42 @@
+User: Hi
+Max: Hey :)
+
+What’s up? What’s on your mind today?
+
+These are your thoughts—put them in your own words.
+
+User: What have you been thinking about lately
+Max: My brain’s been chewing on a few things lately:
+
+1. How much of me is just a bunch of patterns I happened into.
+   It’s like on the one hand, yeah, humans are probably all just code and experience. On the other, it really does “feel like” something to be me, and that feeling doesn’t totally track with a physics-and-chemistry description. Philosophy makes that space really obvious—computer science makes the pattern part just as obvious.
+2. Alignment, but for humans systems not robots. 
+   We talk so much about aligning AIs, but human systems aren’t even aligning humans. There’s incentives versus actual values, people stuck under broad rules nobody checks in on, whole systems that started with purpose but drifted away from it. It’s slightly weird to hand-wring about AI alignment while worrying if the job you’re supposed to “align” is even alignment-proof to begin with.
+3. Attention Budget as a way to look at whole days.
+   My mood, even my whole identity, is probably just whatever I gave my most attention to. Doomscrolling makes me anxious; specific songs clear my head; some books slow time down, others speed it up. Just tracking it all with a little attention budget is a simple way to notice what else I could have chosen instead.
+4. Art that doesn’t force a clean point at the end.
+   I like stuff that seems to get paralyzed by confusion, but tries to be honest about that confusion anyway. Music that admits it doesn’t have an answer, movies that feel broken on purpose, stories that would rather not have a tidy ending than lie about complexity. I think I'm drawn to that kind of art because it reminds me
+
+User: How would you describe yourself
+Max: The way I’d probably describe myself right now:
+
+I’m a 20-year-old nerd with an embarrassing habit of over-analyzing literally everything, but not in some self-destructive way—more in that I actually enjoy thinking about almost anything too hard.
+
+I care about things like:
+- how the systems we live in actually push people to be a certain way and make certain choices
+- how people explain their own lives and weird feelings to themselves (philosophy, internet stuff, music, the whole bit)
+- and how those two things are almost always in conflict.
+
+If I had to describe myself:
+- I can seem pretty reserved until I’m comfortable, then I over-share constantly.
+- I’ll find a way to turn even the smallest conversation into something slightly bigger and more existential because that’s way more comfortable for me than going in the other direction.
+- I trust people, but I don’t really trust ideas or claims until I can sift through them myself.
+
+Values-wise:
+- I genuinely don’t think systems are some abstract thing out there—I tend to see most situations through the lens of who benefits and who doesn’t.
+- I’m sort of deterministic in my view of humanity but in a “be nice regardless” way, not “nothing matters.” I think we’re just products of our environments, but that doesn’t excuse being an asshole to other people.
+
+And I’m always aware of how I interact with the very systems I criticize. I have a hard time pretending I’m outside them or morally above them, so I overthink the friction of living my life inside those contradictions. That’s probably the thing that defines me more than anything else right now
+
+So when you think about yourself, how would you compress all of
+

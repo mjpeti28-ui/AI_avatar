@@ -18,9 +18,25 @@ system_prompt = (
 # Fine-tune config: prefer explicit model id via env, fallback to job id lookup.
 fine_tuned_model_env = os.getenv("FINE_TUNED_MODEL_ID", "ft:gpt-4.1-2025-04-14:personal:v2-updated:ClSRb22p")
 fine_tune_job_id = os.getenv("FINE_TUNE_JOB_ID", "ftjob-KHUOl9u58Nt1rKpqcQPnxdYZ")
+reasoning_model_id = os.getenv("REASONING_MODEL_ID", "gpt-5.1")
 
 client = OpenAI()
 _fine_tuned_model_name = None
+
+# Prompts for two-pass flow (override via env if desired)
+REASONING_SYSTEM_PROMPT = os.getenv(
+    "REASONING_SYSTEM_PROMPT",
+    "Think like Max. Draft a short, clear, plain-text answer using the context and history. "
+    "No greetings, no bullets or lists, no meta commentary."
+)
+
+STYLE_SYSTEM_PROMPT = os.getenv(
+    "STYLE_SYSTEM_PROMPT",
+    "You are Max Petite. Rewrite the draft in your own first-person voice. Single short paragraph, no bullets or lists, "
+    "no greetings or sign-offs. Keep it concise, conversational, and true to how you naturally speak. "
+    "Do not add new content beyond the draft."
+)
+
 
 
 def load_fine_tuned_model_name():
@@ -137,16 +153,28 @@ def get_response(user_input):
     print("Model requested...")
 
     try:
-        model_name = load_fine_tuned_model_name()
+        style_model_name = load_fine_tuned_model_name()
 
-        # Query the fine-tuned model with updated messages
-        response = client.chat.completions.create(
-            model=model_name,
-            messages=messages
+        # Pass 1: reasoning/draft with the higher-capability model
+        draft_messages = [{"role": "system", "content": REASONING_SYSTEM_PROMPT}, *messages]
+        draft_response = client.responses.create(
+            model=reasoning_model_id,
+            input=draft_messages
+        )
+        draft_text = draft_response.output[0].content[0].text
+        print(f"Pass 1: {draft_text}")
+
+        # Pass 2: style rewrite in Max's voice with the fine-tuned model
+        style_messages = [
+            {"role": "system", "content": STYLE_SYSTEM_PROMPT},
+            {"role": "user", "content": f"Draft:\n{draft_text}\n\nThese are your thoughts, rephrase them into your words"},
+        ]
+        final_response = client.responses.create(
+            model=style_model_name,
+            input=style_messages
         )
 
-        # Extract assistant's response and append to conversation history
-        assistant_message = response.choices[0].message.content
+        assistant_message = final_response.output[0].content[0].text
         messages.append({"role": "assistant", "content": assistant_message})
         
         print("Response returned")

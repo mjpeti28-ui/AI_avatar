@@ -85,7 +85,7 @@ def retrieve_relevant_knowledge(query, index, knowledge_base, k=3):
     return relevant_knowledge
 
 
-def get_relevant_context(query, k=3):
+def get_relevant_context(query, k=5):
     try:
         index, knowledge_base = load_embeddings()
     except FileNotFoundError as exc:

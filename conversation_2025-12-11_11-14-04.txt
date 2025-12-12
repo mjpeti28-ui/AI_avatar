@@ -1,0 +1,10 @@
+User: Hi
+Max: Hey!
+
+How've you been?
+
+User: Im good, what can you tell me about yourself
+Max: Hey, good to hear from you.
+
+I’m Max—20, from St. Louis, now at Colby College in Maine. I study computer science and write about the overlap between tech, identity, and power. I’m usually thinking too much about questions of change, listen to a lot of music, and I have a knack for wandering. How about you?
+
